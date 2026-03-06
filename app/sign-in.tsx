@@ -7,12 +7,22 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { login } from "@/lib/appwrite";
+import {Alert } from "react-native"
 
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 
 const SignIn = () => {
-  const handleLogin = () => {};
+  const handleLogin = async () => {
+    const result = await login();
+
+    if(result) {
+      console.log('Login Sucess')
+    } else {
+      Alert.alert('Error', "Failed to login")
+    }
+  };
   return (
     <SafeAreaView className="bg-white h-full">
       <ScrollView contentContainerClassName="h-full">

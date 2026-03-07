@@ -1,13 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Alert,
-  Image,
-  ScrollView,
-  Text,
-  Pressable,
-  View,
-} from "react-native";
+import { Alert, Image, ScrollView, Text, Pressable, View } from "react-native";
 
 import { login } from "@/lib/appwrite";
 import { Redirect } from "expo-router";
@@ -48,7 +41,7 @@ const Auth = () => {
           </Text>
 
           <Text className="text-3xl font-rubik-bold text-[#2c2c2c] text-center mt-2">
-            Let&apos;s Get You Closer To {"\n"}
+            {"Let's Get You Closer To\n"}
             <Text className="text-primary-300">Your Ideal Home</Text>
           </Text>
 

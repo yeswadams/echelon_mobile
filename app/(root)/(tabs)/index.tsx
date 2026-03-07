@@ -3,8 +3,8 @@ import {
   View,
   Image,
   Pressable,
-  ScrollView,
   FlatList,
+  Button
 } from "react-native";
 import "./../../globals.css";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,12 +14,14 @@ import Search from "@/components/search";
 import { Card, FeaturedCard } from "@/components/cards";
 import Filters from "@/components/filters";
 import { useGlobalContext } from "@/lib/global-provider";
+import seed from "@/lib/seed";
 
 export default function Index() {
   const { user } = useGlobalContext();
 
   return (
     <SafeAreaView className="bg-white h-full">
+      {/* <Button title="Seed" onPress={seed} /> */}
       <FlatList
         data={[1, 2, 3, 4]}
         renderItem={({ item }) => <Card />}
@@ -40,7 +42,7 @@ export default function Index() {
                     />
                   ) : (
                     <Text className="text-sm font-rubik-bold text-white">
-                      { user?.name?.charAt(0) }
+                      {user?.name?.charAt(0)}
                     </Text>
                   )}
                 </View>

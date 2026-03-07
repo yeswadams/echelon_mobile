@@ -1,28 +1,28 @@
 import React from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View
-} from "react-native";
+import { Image, Pressable, ScrollView, Text, View, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { login } from "@/lib/appwrite";
-import {Alert } from "react-native"
+import { useGlobalContext } from "@/lib/global-provider";
+import { Redirect } from "expo-router";
 
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 
 const SignIn = () => {
+
+  const {refetch, loading, isLoggedIn} = useGlobalContext();
+
+  if(!loading && isLoggedIn) return <Redirect href="/"/>
   const handleLogin = async () => {
     const result = await login();
 
-    if(result) {
-      console.log('Login Sucess')
+    if (result) {
+      console.log("Login Sucess");
     } else {
-      Alert.alert('Error', "Failed to login")
+      Alert.alert("Error", "Failed to login");
     }
   };
+
   return (
     <SafeAreaView className="bg-white h-full">
       <ScrollView contentContainerClassName="h-full">
@@ -49,7 +49,9 @@ const SignIn = () => {
             className="bg-primary-100 shadow-md shadow-zinc-300  py-5 rounded-full mt-5 w-full flex flex-row items-center justify-center gap-2"
           >
             <Image source={icons.google} className="w-5 h-5" />
-            <Text className="text-lg font-rubik-medium text-black-400 ml-2">Continue with Google</Text>
+            <Text className="text-lg font-rubik-medium text-black-400 ml-2">
+              Continue with Google
+            </Text>
           </Pressable>
         </View>
       </ScrollView>

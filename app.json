@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "echelo_mobile_app",
+    "name": "Echelon Realty",
     "slug": "echelo_mobile_app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,6 +21,12 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+    "splash": {
+      "image": "./assets/images/icon.png", 
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    
     "web": {
       "output": "static",
       "bundler": "metro",
@@ -32,9 +38,8 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/icon.png",
-          "resizeMode": "cover",
-          "backgroundColor": "#ffffff",
-          "enableFullScreenImage_legacy": true
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
         }
       ],
       [

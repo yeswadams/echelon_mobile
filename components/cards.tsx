@@ -2,18 +2,29 @@ import { View, Text, Pressable, Image } from "react-native";
 import React from "react";
 import images from "@/constants/images";
 import icons from "@/constants/icons";
+import {Models} from "react-native-appwrite";
+
+interface Item {
+  image: string;
+  rating: number;
+  // Add other properties as needed, e.g., title, location, price
+}
 
 interface Props {
+  item: Models.Document;
+  image: string
   onPress?: () => void;
 }
 
-export const FeaturedCard = ({ onPress }: Props) => {
+
+
+export const FeaturedCard = ({item: {image, rating, name, address, price}, onPress }: Props) => {
   return (
     <Pressable
       onPress={onPress}
       className="flex flex-col items-start w-60 h-80 relative"
     >
-      <Image source={images.japan} className="size-full rounded-2xl" />
+    <Image source={{uri: image}} className="size-full rounded-2xl" />
       <Image
         source={images.cardGradient}
         className="size-full rounded-2xl absolute bottom-0"
@@ -22,7 +33,7 @@ export const FeaturedCard = ({ onPress }: Props) => {
       <View className="flex flex-row items-center bg-white/90 px-3 py-1.5 rounded-full absolute top-5 right-5">
         <Image source={icons.star} className="size-3.5" />
         <Text className="text-xs font-rubik-bold text-primary-300 ml-1">
-          4.5
+          {rating}
         </Text>
       </View>
 
@@ -32,14 +43,14 @@ export const FeaturedCard = ({ onPress }: Props) => {
           numberOfLines={1}
           ellipsizeMode="tail"
         >
-          Modern Apartment
+          {name}
         </Text>
         <Text className="text-base font-rubik text-white">
-          Kileleshwa, Nairobi
+          {address}
         </Text>
 
         <View className="flex flex-row items-center justify-between w-full mt-1">
-          <Text className="text-xl font-rubik-bold text-white">KSH. 2,500</Text>
+          <Text className="text-xl font-rubik-bold text-white">KSH. {price}</Text>
           <Image source={icons.heart} className="size-5" />
         </View>
       </View>
@@ -47,7 +58,7 @@ export const FeaturedCard = ({ onPress }: Props) => {
   );
 };
 
-export const Card = ({ onPress }: Props) => {
+export const Card = ({item: {image, rating, name, address, price}, onPress }: Props) => {
   return (
     <Pressable
       onPress={onPress}
@@ -56,23 +67,23 @@ export const Card = ({ onPress }: Props) => {
       <View className="flex flex-row items-center absolute px-2 top-5 right-5 bg-white/90 p-1 rounded-full z-50">
         <Image source={icons.star} className="size-2.5" />
         <Text className="text-xs font-rubik-bold text-primary-300 ml-0.5">
-          4.4
+          {rating}
         </Text>
       </View>
 
-      <Image source={images.newYork} className="w-full h-40 rounded-lg" />
+      <Image source={{uri: image}} className="w-full h-40 rounded-lg" />
 
       <View className="flex flex-col mt-2">
         <Text className="text-base font-rubik-bold text-[#2c2c2c]">
-          Cozy Studio
+          {name}
         </Text>
         <Text className="text-xs font-rubik text-black-300">
-          Kitisuru, Nairobi
+          {address}
         </Text>
 
         <View className="flex flex-row items-center justify-between mt-2">
           <Text className="text-base font-rubik-bold text-primary-300">
-            $4,000
+            KSH. {price}
           </Text>
           <Image
             source={icons.heart}

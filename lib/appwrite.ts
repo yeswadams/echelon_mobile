@@ -1,6 +1,13 @@
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { Account, Avatars, Client, Databases, OAuthProvider } from "react-native-appwrite";
+import {
+  Account,
+  Avatars,
+  Client,
+  Databases,
+  OAuthProvider,
+  Query,
+} from "react-native-appwrite";
 import { openAuthSessionAsync } from "expo-web-browser";
 
 export const config = {
@@ -8,10 +15,12 @@ export const config = {
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
   databaseId: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
-  galleriesCollectionId: process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID,
+  galleriesCollectionId:
+    process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID,
   reviewsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID,
   agentsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID,
-  propertiesCollectionId: process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,  
+  propertiesCollectionId:
+    process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,
 };
 
 export const client = new Client();
@@ -77,18 +86,70 @@ export async function getCurrentUser() {
   try {
     const response = await account.get();
 
-    if(response.$id) {
-        const userAvatar = avatar.getInitials(response.name);
+    if (response.$id) {
+      const userAvatar = avatar.getInitials(response.name);
 
-        return {
-            ...response,
-            avatar: userAvatar.toString(),
-        }
+      return {
+        ...response,
+        avatar: userAvatar.toString(),
+      };
     }
 
     return response;
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export async function getLatestProperties() {
+  try {
+    const result = await databases.listDocuments(
+      config.databaseId!,
+      config.propertiesCollectionId!,
+      [Query.orderAsc("$createdAt"), Query.limit(5)]
+    );
+
+    return result.documents;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getProperties({
+  filter,
+  query,
+  limit,
+}: {
+  filter: string;
+  query: string;
+  limit?: number;
+}) {
+  try {
+    const buildQuery = [Query.orderDesc("$createdAt")];
+
+    if (filter && filter !== "All") {
+      buildQuery.push(
+        Query.or([
+          Query.search("name", query),
+          Query.search("address", query),
+          Query.search("type", query),
+        ]),
+      );
+    }
+
+    if (limit) buildQuery.push(Query.limit(limit));
+
+    const result = await databases.listDocuments(
+      config.databaseId!,
+      config.propertiesCollectionId!,
+      buildQuery,
+    )
+    
+    return result.documents;
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }

@@ -1,30 +1,25 @@
-import { View, Text, Pressable, Image } from "react-native";
-import React from "react";
-import images from "@/constants/images";
 import icons from "@/constants/icons";
-import {Models} from "react-native-appwrite";
+import images from "@/constants/images";
+import React from "react";
+import { Image, Pressable, Text, View } from "react-native";
 
-interface Item {
-  image: string;
-  rating: number;
-  // Add other properties as needed, e.g., title, location, price
-}
+import { Property } from "@/lib/types";
 
 interface Props {
-  item: Models.Document;
-  image: string
+  item: Property;
   onPress?: () => void;
 }
 
-
-
-export const FeaturedCard = ({item: {image, rating, name, address, price}, onPress }: Props) => {
+export const FeaturedCard = ({
+  item: { image, rating, name, address, price },
+  onPress,
+}: Props) => {
   return (
     <Pressable
       onPress={onPress}
       className="flex flex-col items-start w-60 h-80 relative"
     >
-    <Image source={{uri: image}} className="size-full rounded-2xl" />
+      <Image source={{ uri: image }} className="size-full rounded-2xl" />
       <Image
         source={images.cardGradient}
         className="size-full rounded-2xl absolute bottom-0"
@@ -45,12 +40,12 @@ export const FeaturedCard = ({item: {image, rating, name, address, price}, onPre
         >
           {name}
         </Text>
-        <Text className="text-base font-rubik text-white">
-          {address}
-        </Text>
+        <Text className="text-base font-rubik text-white">{address}</Text>
 
         <View className="flex flex-row items-center justify-between w-full mt-1">
-          <Text className="text-xl font-rubik-bold text-white">KSH. {price}</Text>
+          <Text className="text-xl font-rubik-bold text-white">
+            KSH. {price}
+          </Text>
           <Image source={icons.heart} className="size-5" />
         </View>
       </View>
@@ -58,7 +53,10 @@ export const FeaturedCard = ({item: {image, rating, name, address, price}, onPre
   );
 };
 
-export const Card = ({item: {image, rating, name, address, price}, onPress }: Props) => {
+export const Card = ({
+  item: { image, rating, name, address, price },
+  onPress,
+}: Props) => {
   return (
     <Pressable
       onPress={onPress}
@@ -71,15 +69,11 @@ export const Card = ({item: {image, rating, name, address, price}, onPress }: Pr
         </Text>
       </View>
 
-      <Image source={{uri: image}} className="w-full h-40 rounded-lg" />
+      <Image source={{ uri: image }} className="w-full h-40 rounded-lg" />
 
       <View className="flex flex-col mt-2">
-        <Text className="text-base font-rubik-bold text-[#2c2c2c]">
-          {name}
-        </Text>
-        <Text className="text-xs font-rubik text-black-300">
-          {address}
-        </Text>
+        <Text className="text-base font-rubik-bold text-[#2c2c2c]">{name}</Text>
+        <Text className="text-xs font-rubik text-black-300">{address}</Text>
 
         <View className="flex flex-row items-center justify-between mt-2">
           <Text className="text-base font-rubik-bold text-primary-300">

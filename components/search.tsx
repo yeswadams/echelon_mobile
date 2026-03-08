@@ -2,14 +2,14 @@ import icons from "@/constants/icons";
 import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, TextInput, View } from "react-native";
-import { useDebounce } from "use-debounce";
+import { useDebouncedCallback } from "use-debounce";
 
 const Search = () => {
   const path = usePathname();
   const params = useLocalSearchParams<{ query?: string }>();
   const [search, setSearch] = useState(params.query || "");
 
-  const [debouncedSearch] = useDebounce(
+  const debouncedSearch = useDebouncedCallback(
     (text: string) => router.setParams({ query: text }),
     500,
   );
@@ -38,6 +38,3 @@ const Search = () => {
 };
 
 export default Search;
-function useDebouncedCallback(arg0: (text: string) => void, arg1: number) {
-  throw new Error("Function not implemented.");
-}

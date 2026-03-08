@@ -1,8 +1,8 @@
+import { GlobalProvider } from "@/lib/global-provider";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { GlobalProvider } from "@/lib/global-provider";
 import "./globals.css";
 
 SplashScreen.preventAutoHideAsync().catch(console.warn);
@@ -29,7 +29,7 @@ export default function RootLayout() {
 
   return (
     <GlobalProvider>
-      <Stack screenOptions={{ headerShown: false }} />;
+      <Stack screenOptions={{ headerShown: false }} />
     </GlobalProvider>
   );
 }

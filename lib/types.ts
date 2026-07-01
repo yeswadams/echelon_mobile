@@ -99,6 +99,26 @@ export interface SanityNearbyPlace {
   distanceHint?: string;
 }
 
+// ─── Search & discovery (results view, filters) ─────────────────────────────
+
+export type ViewMode = 'grid' | 'list';
+
+export type SortOption = 'newest' | 'price_asc' | 'price_desc';
+
+export interface FilterState {
+  propertyType: string;
+  priceMin?: number;
+  priceMax?: number;
+  beds?: number;
+  baths?: number;
+  sortBy: SortOption;
+}
+
+export const DEFAULT_FILTER_STATE: FilterState = {
+  propertyType: 'All',
+  sortBy: 'newest',
+};
+
 export interface SanityPropertyDetail extends SanityPropertyListing {
   _createdAt: string;
   _updatedAt: string;

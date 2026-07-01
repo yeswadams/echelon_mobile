@@ -22,11 +22,10 @@
       "predictiveBackGestureEnabled": false
     },
     "splash": {
-      "image": "./assets/images/icon.png", 
+      "image": "./assets/images/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    
     "web": {
       "output": "static",
       "bundler": "metro",
@@ -54,7 +53,8 @@
             "./assets/fonts/Rubik-Light.ttf"
           ]
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,39 +1,44 @@
-import { Image, Text, View } from "react-native";
+import { Image, Text, View } from 'react-native';
 
-import icons from "@/constants/icons";
+import icons from '@/constants/icons';
+
+interface ReviewItem {
+  avatar?: string;
+  name?: string;
+  review?: string;
+  created_at?: string;
+}
 
 interface Props {
-  item: any;
+  item: ReviewItem;
 }
 
 const Comment = ({ item }: Props) => {
   return (
     <View className="flex flex-col items-start">
       <View className="flex flex-row items-center">
-        <Image source={{ uri: item.avatar }} className="size-14 rounded-full" />
+        {item.avatar ? (
+          <Image source={{ uri: item.avatar }} className="size-14 rounded-full" />
+        ) : (
+          <View className="size-14 rounded-full bg-primary-100" />
+        )}
         <Text className="text-base text-black-300 text-start font-rubik-bold ml-3">
           {item.name}
         </Text>
       </View>
 
-      <Text className="text-black-200 text-base font-rubik mt-2">
-        {item.review}
-      </Text>
+      <Text className="text-black-200 text-base font-rubik mt-2">{item.review}</Text>
 
       <View className="flex flex-row items-center w-full justify-between mt-4">
         <View className="flex flex-row items-center">
-          <Image
-            source={icons.heart}
-            className="size-5"
-            tintColor={"#0061FF"}
-          />
-          <Text className="text-black-300 text-sm font-rubik-medium ml-2">
-            120
-          </Text>
+          <Image source={icons.heart} className="size-5" tintColor="#0061FF" />
+          <Text className="text-black-300 text-sm font-rubik-medium ml-2">120</Text>
         </View>
-        <Text className="text-black-100 text-sm font-rubik">
-          {new Date(item.$createdAt).toDateString()}
-        </Text>
+        {item.created_at && (
+          <Text className="text-black-100 text-sm font-rubik">
+            {new Date(item.created_at).toDateString()}
+          </Text>
+        )}
       </View>
     </View>
   );

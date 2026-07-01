@@ -1,49 +1,55 @@
-import React, { createContext, ReactNode, useContext } from "react";
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
-import { getCurrentUser } from "./appwrite";
-import { useAppwrite } from "./useAppwrite";
-import { Redirect } from "expo-router";
+import { supabase, getCurrentUser } from './supabase';
+import type { AppUser } from './types';
 
 interface GlobalContextType {
   isLoggedIn: boolean;
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
-  refetch: (newParams?: Record<string, string | number>) => Promise<void>;
-}
-
-interface User {
-  $id: string;
-  name: string;
-  email: string;
-  avatar?: string;
+  refetch: (params?: Record<string, string | number>) => Promise<void>;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-interface GlobalProviderProps {
-  children: ReactNode;
-}
+export const GlobalProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export const GlobalProvider = ({ children }: GlobalProviderProps) => {
-  const {
-    data: user,
-    loading,
-    refetch,
-  } = useAppwrite({
-    fn: getCurrentUser,
-  });
+  const loadUser = async () => {
+    setLoading(true);
+    try {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const isLoggedIn = !!user;
+  useEffect(() => {
+    loadUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const refetch = async (_params?: Record<string, string | number>) => {
+    await loadUser();
+  };
 
   return (
-    <GlobalContext.Provider
-      value={{
-        isLoggedIn,
-        user,
-        loading,
-        refetch,
-      }}
-    >
+    <GlobalContext.Provider value={{ isLoggedIn: !!user, user, loading, refetch }}>
       {children}
     </GlobalContext.Provider>
   );
@@ -51,9 +57,7 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
-  if (!context)
-    throw new Error("useGlobalContext must be used within a GlobalProvider");
-
+  if (!context) throw new Error('useGlobalContext must be used within a GlobalProvider');
   return context;
 };
 

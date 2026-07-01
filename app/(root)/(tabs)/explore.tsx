@@ -5,43 +5,36 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 
-import { Card } from "@/components/cards";
-import Filters from "@/components/filters";
-import NoResults from "@/components/noResult";
-import Search from "@/components/search";
-import icons from "@/constants/icons";
+import { Card } from '@/components/cards';
+import Filters from '@/components/filters';
+import NoResults from '@/components/noResult';
+import Search from '@/components/search';
+import icons from '@/constants/icons';
 
-import { getProperties } from "@/lib/appwrite";
-import { Property } from "@/lib/types";
-import { useAppwrite } from "@/lib/useAppwrite";
+import { getProperties } from '@/lib/sanity';
+import { useFetch } from '@/lib/useFetch';
+import type { SanityPropertyListing } from '@/lib/types';
 
 const Explore = () => {
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
-  const {
-    data: properties,
-    refetch,
-    loading,
-  } = useAppwrite<Property[], { filter: string; query: string }>({
+  const { data: properties, refetch, loading } = useFetch<
+    SanityPropertyListing[],
+    { filter: string; query: string }
+  >({
     fn: getProperties,
-    params: {
-      filter: params.filter!,
-      query: params.query!,
-    },
+    params: { filter: params.filter!, query: params.query! },
     skip: true,
   });
 
   useEffect(() => {
-    refetch({
-      filter: params.filter!,
-      query: params.query!,
-    });
+    refetch({ filter: params.filter!, query: params.query! });
   }, [params.filter, params.query]);
 
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
@@ -52,9 +45,9 @@ const Explore = () => {
         data={properties}
         numColumns={2}
         renderItem={({ item }) => (
-          <Card item={item} onPress={() => handleCardPress(item.$id)} />
+          <Card item={item} onPress={() => handleCardPress(item._id)} />
         )}
-        keyExtractor={(item) => item.$id}
+        keyExtractor={(item) => item._id}
         contentContainerClassName="pb-32"
         columnWrapperClassName="flex gap-5 px-5"
         showsVerticalScrollIndicator={false}
@@ -85,9 +78,8 @@ const Explore = () => {
 
             <View className="mt-5">
               <Filters />
-
               <Text className="text-xl font-rubik-bold text-black-300 mt-5">
-                Found {properties?.length} Properties
+                Found {properties?.length ?? 0} Properties
               </Text>
             </View>
           </View>

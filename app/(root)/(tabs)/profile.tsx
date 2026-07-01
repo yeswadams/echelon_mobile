@@ -1,18 +1,12 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Pressable,
-  Alert,
-} from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import icons from "@/constants/icons";
-import images from "@/constants/images";
-import { settings } from "@/constants/data";
-import { useGlobalContext } from "@/lib/global-provider";
-import { logout } from "@/lib/appwrite";
+import { View, Text, ScrollView, Image, Pressable, Alert } from 'react-native';
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import icons from '@/constants/icons';
+import images from '@/constants/images';
+import { settings } from '@/constants/data';
+import { useGlobalContext } from '@/lib/global-provider';
+import { logout } from '@/lib/supabase';
 
 interface SettingsItemProps {
   icon: any;
@@ -35,28 +29,24 @@ const SettingsItem = ({
   >
     <View className="flex flex-row items-center gap-3">
       <Image source={icon} className="size-6" />
-      <Text
-        className={
-          `text-lg font-rubik-medium text-black-300 ${textStyle}` || ""
-        }
-      >
+      <Text className={`text-lg font-rubik-medium text-black-300 ${textStyle ?? ''}`}>
         {title}
       </Text>
     </View>
     {showArrow && <Image source={icons.rightArrow} className="size-5" />}
   </Pressable>
 );
+
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
 
   const handleLogout = async () => {
     const result = await logout();
-
     if (result) {
-      Alert.alert("Success", "You have been logged out successfully.");
+      Alert.alert('Success', 'You have been logged out successfully.');
       refetch({});
     } else {
-      Alert.alert("Error", "An Error occurred while logging out");
+      Alert.alert('Error', 'An error occurred while logging out.');
     }
   };
 
@@ -74,20 +64,19 @@ const Profile = () => {
         <View className="flex flex-row justify-center mt-5">
           <View className="flex flex-col items-center relative mt-5">
             <Image
-              source={user?.avatar ? { uri: user.avatar } : images.avatar.png}
+              source={user?.avatar ? { uri: user.avatar } : images.avatar}
               className="size-44 rounded-full"
             />
-            <Pressable className="absolute bottom-11 right-2 ">
+            <Pressable className="absolute bottom-11 right-2">
               <Image source={icons.edit} className="size-6" />
             </Pressable>
             <Text className="text-2xl font-rubik-bold mt-2">
-              {user?.name || "User"}
+              {user?.name || 'User'}
             </Text>
           </View>
         </View>
 
         <View className="flex flex-col mt-10">
-          {/* <SettingsItem icon={icons.wallet} title="Manage My Property" /> */}
           <SettingsItem icon={icons.calendar} title="My Bookings" />
           <SettingsItem icon={icons.wallet} title="Payment" />
         </View>
@@ -97,6 +86,7 @@ const Profile = () => {
             <SettingsItem key={index} {...item} />
           ))}
         </View>
+
         <View className="flex flex-col mt-5 border-t pt-5 border-primary-200">
           <SettingsItem
             icon={icons.logout}

@@ -280,7 +280,7 @@ const EmailAuth = () => {
 
                 <Pressable onPress={() => setScreen('signup')} className="items-center">
                   <Text className="text-sm font-rubik text-black-100">
-                    Didn't receive a code?{' '}
+                    Didn&apos;t receive a code?{' '}
                     <Text className="text-primary-300 font-rubik-medium">Go back</Text>
                   </Text>
                 </Pressable>

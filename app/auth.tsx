@@ -12,26 +12,31 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 
 import {
   loginWithGoogle,
   signInWithEmail,
   signUpWithEmail,
   verifyEmailOtp,
+  requestPasswordReset,
+  verifyPasswordResetOtp,
+  updatePassword,
 } from '@/lib/supabase';
 import { useGlobalContext } from '@/lib/global-provider';
 import icons from '@/constants/icons';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type Screen = 'signin' | 'signup' | 'otp';
+type Screen = 'signin' | 'signup' | 'otp' | 'forgot' | 'reset';
 
 interface FormState {
   name: string;
   email: string;
   password: string;
   otp: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 interface FormErrors {
@@ -39,6 +44,8 @@ interface FormErrors {
   email?: string;
   password?: string;
   otp?: string;
+  newPassword?: string;
+  confirmPassword?: string;
   general?: string;
 }
 
@@ -108,14 +115,23 @@ function Divider() {
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
 const EmailAuth = () => {
-  const { refetch } = useGlobalContext();
+  const { refetch, loading: authLoading, isLoggedIn } = useGlobalContext();
 
   const [screen, setScreen] = useState<Screen>('signin');
   const [loading, setLoading] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
 
-  const [form, setForm] = useState<FormState>({ name: '', email: '', password: '', otp: '' });
+  const [form, setForm] = useState<FormState>({
+    name: '',
+    email: '',
+    password: '',
+    otp: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
   const [errors, setErrors] = useState<FormErrors>({});
+
+  if (!authLoading && isLoggedIn) return <Redirect href="/" />;
 
   function setField(key: keyof FormState, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -144,6 +160,22 @@ const EmailAuth = () => {
   function validateOtp(): boolean {
     const next: FormErrors = {};
     if (!/^\d{8}$/.test(form.otp.trim())) next.otp = 'Enter the 8-digit code from your email.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function validateForgot(): boolean {
+    const next: FormErrors = {};
+    if (!isValidEmail(form.email)) next.email = 'Enter a valid email address.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function validateReset(): boolean {
+    const next: FormErrors = {};
+    if (!/^\d{8}$/.test(form.otp.trim())) next.otp = 'Enter the 8-digit code from your email.';
+    if (form.newPassword.length < 6) next.newPassword = 'Password must be at least 6 characters.';
+    if (form.confirmPassword !== form.newPassword) next.confirmPassword = 'Passwords do not match.';
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -210,6 +242,40 @@ const EmailAuth = () => {
     router.replace('/');
   };
 
+  const handleForgotPassword = async () => {
+    if (!validateForgot()) return;
+    setLoading(true);
+    const { error } = await requestPasswordReset(form.email.trim());
+    setLoading(false);
+    if (error) {
+      setErrors({ general: error });
+      return;
+    }
+    setPendingEmail(form.email.trim());
+    setScreen('reset');
+  };
+
+  const handleResetPassword = async () => {
+    if (!validateReset()) return;
+    setLoading(true);
+    const { error: otpError } = await verifyPasswordResetOtp(pendingEmail, form.otp.trim());
+    if (otpError) {
+      setLoading(false);
+      setErrors({ otp: otpError });
+      return;
+    }
+    const { error: updateError } = await updatePassword(form.newPassword);
+    setLoading(false);
+    if (updateError) {
+      setErrors({ general: updateError });
+      return;
+    }
+    // verifyOtp(type: 'recovery') establishes a session, so the user is
+    // already signed in at this point once the new password is set.
+    refetch({});
+    router.replace('/');
+  };
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -228,7 +294,12 @@ const EmailAuth = () => {
           {/* Header */}
           <View className="flex flex-row items-center px-5 pt-4 pb-2">
             <Pressable
-              onPress={() => (screen === 'otp' ? setScreen('signup') : router.back())}
+              onPress={() => {
+                if (screen === 'otp') setScreen('signup');
+                else if (screen === 'reset') setScreen('forgot');
+                else if (screen === 'forgot') setScreen('signin');
+                else router.back();
+              }}
               className="flex flex-row bg-primary-200 rounded-full size-10 items-center justify-center mr-3"
             >
               <Image source={icons.backArrow} className="size-4" />
@@ -237,8 +308,114 @@ const EmailAuth = () => {
           </View>
 
           <View className="px-6 pt-4 pb-10 gap-5">
-            {/* ── OTP Screen ────────────────────────────────────────────── */}
-            {screen === 'otp' ? (
+            {/* ── Forgot Password Screen ───────────────────────────────── */}
+            {screen === 'forgot' ? (
+              <>
+                <View className="gap-1">
+                  <Text className="text-2xl font-rubik-bold text-black-300">
+                    Reset your password
+                  </Text>
+                  <Text className="text-base font-rubik text-black-100 mt-1">
+                    Enter your email and we&apos;ll send you an 8-digit code to reset your
+                    password.
+                  </Text>
+                </View>
+
+                <Field
+                  label="Email"
+                  value={form.email}
+                  onChangeText={(v) => setField('email', v)}
+                  placeholder="you@example.com"
+                  keyboardType="email-address"
+                  error={errors.email}
+                />
+
+                {errors.general ? (
+                  <Text className="text-sm text-red-500 font-rubik text-center">
+                    {errors.general}
+                  </Text>
+                ) : null}
+
+                <Pressable
+                  onPress={handleForgotPassword}
+                  disabled={loading}
+                  className="bg-primary-300 rounded-full py-4 items-center"
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text className="text-white text-lg font-rubik-bold">Send Reset Code</Text>
+                  )}
+                </Pressable>
+              </>
+            ) : screen === 'reset' ? (
+              <>
+                {/* ── Reset Password Screen ─────────────────────────────── */}
+                <View className="gap-1">
+                  <Text className="text-2xl font-rubik-bold text-black-300">
+                    Check your email
+                  </Text>
+                  <Text className="text-base font-rubik text-black-100 mt-1">
+                    We sent an 8-digit code to{'\n'}
+                    <Text className="font-rubik-medium text-black-300">{pendingEmail}</Text>
+                  </Text>
+                </View>
+
+                <Field
+                  label="Verification code"
+                  value={form.otp}
+                  onChangeText={(v) => setField('otp', v)}
+                  placeholder="Enter 8-digit code"
+                  keyboardType="numeric"
+                  maxLength={8}
+                  error={errors.otp}
+                />
+
+                <Field
+                  label="New password"
+                  value={form.newPassword}
+                  onChangeText={(v) => setField('newPassword', v)}
+                  placeholder="At least 6 characters"
+                  secureTextEntry
+                  error={errors.newPassword}
+                />
+
+                <Field
+                  label="Confirm new password"
+                  value={form.confirmPassword}
+                  onChangeText={(v) => setField('confirmPassword', v)}
+                  placeholder="Re-enter your new password"
+                  secureTextEntry
+                  error={errors.confirmPassword}
+                />
+
+                {errors.general ? (
+                  <Text className="text-sm text-red-500 font-rubik text-center">
+                    {errors.general}
+                  </Text>
+                ) : null}
+
+                <Pressable
+                  onPress={handleResetPassword}
+                  disabled={loading}
+                  className="bg-primary-300 rounded-full py-4 items-center"
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text className="text-white text-lg font-rubik-bold">Reset Password</Text>
+                  )}
+                </Pressable>
+
+                <Pressable onPress={() => setScreen('forgot')} className="items-center">
+                  <Text className="text-sm font-rubik text-black-100">
+                    Didn&apos;t receive a code?{' '}
+                    <Text className="text-primary-300 font-rubik-medium">Go back</Text>
+                  </Text>
+                </Pressable>
+              </>
+            ) : /* ── OTP Screen ────────────────────────────────────────────── */
+            screen === 'otp' ? (
               <>
                 <View className="gap-1">
                   <Text className="text-2xl font-rubik-bold text-black-300">
@@ -344,6 +521,20 @@ const EmailAuth = () => {
                   secureTextEntry
                   error={errors.password}
                 />
+
+                {screen === 'signin' && (
+                  <Pressable
+                    onPress={() => {
+                      setErrors({});
+                      setScreen('forgot');
+                    }}
+                    className="items-end -mt-2"
+                  >
+                    <Text className="text-sm font-rubik-medium text-primary-300">
+                      Forgot password?
+                    </Text>
+                  </Pressable>
+                )}
 
                 {errors.general ? (
                   <Text className="text-sm text-red-500 font-rubik text-center -mt-1">

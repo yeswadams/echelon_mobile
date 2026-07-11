@@ -31,10 +31,18 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     loadUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // INITIAL_SESSION fires immediately on subscribe and would duplicate the
+      // loadUser() call above — loadUser() is the authoritative cold-start fetch.
+      if (event === 'INITIAL_SESSION') return;
+
       if (session?.user) {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        try {
+          const currentUser = await getCurrentUser();
+          setUser(currentUser);
+        } catch {
+          setUser(null);
+        }
       } else {
         setUser(null);
         setLoading(false);

@@ -182,6 +182,25 @@ export async function verifyEmailOtp(email: string, otp: string): Promise<AuthRe
   return { error: error?.message ?? null };
 }
 
+export async function requestPasswordReset(email: string): Promise<AuthResult> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  return { error: error?.message ?? null };
+}
+
+export async function verifyPasswordResetOtp(email: string, otp: string): Promise<AuthResult> {
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token: otp,
+    type: 'recovery',
+  });
+  return { error: error?.message ?? null };
+}
+
+export async function updatePassword(newPassword: string): Promise<AuthResult> {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  return { error: error?.message ?? null };
+}
+
 export async function logout(): Promise<boolean> {
   const { error } = await supabase.auth.signOut();
   if (error) console.error('Logout error:', error);

@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -45,6 +46,24 @@ const PropertyDetails = () => {
   const displayAddress = [property?.location?.area, property?.location?.city]
     .filter(Boolean)
     .join(', ') || 'Kenya';
+
+  const handleBookNow = () => {
+    const bookingMessage = `Hi, I'm interested in booking a viewing for "${property?.title}". Could you help me schedule a visit?`;
+    const whatsappNumber = property?.leadCapture?.whatsappNumber || property?.agent?.whatsapp;
+
+    if (whatsappNumber) {
+      Linking.openURL(
+        `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(bookingMessage)}`
+      );
+    } else if (property?.agent?.phone) {
+      Linking.openURL(`tel:${property.agent.phone}`);
+    } else {
+      Alert.alert(
+        'No contact information',
+        'This listing has no contact number available yet. Please check back later.'
+      );
+    }
+  };
 
   const buildGalleryImageUrl = (image: SanityImage | undefined) => {
     if (!image) return null;
@@ -328,7 +347,10 @@ const PropertyDetails = () => {
             </Text>
           </View>
 
-          <TouchableOpacity className="flex-1 flex flex-row items-center justify-center bg-primary-300 py-3 rounded-full shadow-md shadow-zinc-400">
+          <TouchableOpacity
+            onPress={handleBookNow}
+            className="flex-1 flex flex-row items-center justify-center bg-primary-300 py-3 rounded-full shadow-md shadow-zinc-400"
+          >
             <Text className="text-white text-lg text-center font-rubik-bold">Book Now</Text>
           </TouchableOpacity>
         </View>

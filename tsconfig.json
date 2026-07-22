@@ -6,6 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "types": ["jest"],
     "paths": {
       "@/*": ["./*"]
     }
@@ -16,6 +17,6 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts",
-    "./global.css"
+    "./globals.css"
   ]
 }

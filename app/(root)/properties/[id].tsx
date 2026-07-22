@@ -18,10 +18,11 @@ import { facilities } from '@/constants/data';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
 
-import { getPropertyById } from '@/lib/sanity';
+import { getPropertyById, getUnitsByPropertyId } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { useFetch } from '@/lib/useFetch';
-import type { SanityImage, SanityPropertyDetail } from '@/lib/types';
+import { UnitCard } from '@/components/molecules';
+import type { SanityImage, SanityPropertyDetail, SanityPropertyUnit } from '@/lib/types';
 
 const PropertyDetails = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -33,6 +34,11 @@ const PropertyDetails = () => {
   >({
     fn: getPropertyById,
     params: { id: id! },
+  });
+
+  const { data: units } = useFetch<SanityPropertyUnit[], { propertyId: string }>({
+    fn: getUnitsByPropertyId,
+    params: { propertyId: id! },
   });
 
   const heroImageUrl = property?.heroImage
@@ -244,6 +250,24 @@ const PropertyDetails = () => {
               <Text className="text-black-200 text-base font-rubik mt-2">
                 {property.description}
               </Text>
+            </View>
+          )}
+
+          {/* Property units — each opens its own details screen */}
+          {(units?.length ?? 0) > 0 && (
+            <View className="mt-7">
+              <Text className="text-black text-xl font-rubik-bold">Available Units</Text>
+              <FlatList
+                contentContainerStyle={{ paddingRight: 20 }}
+                data={units}
+                keyExtractor={(item) => item._id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => (
+                  <UnitCard unit={item} onPress={() => router.push(`/properties/units/${item._id}`)} />
+                )}
+                contentContainerClassName="flex gap-4 mt-3"
+              />
             </View>
           )}
 

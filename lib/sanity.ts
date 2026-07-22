@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client';
 
-import type { SanityPropertyDetail, SanityPropertyListing } from './types';
+import type { SanityPropertyDetail, SanityPropertyListing, SanityPropertyUnit } from './types';
 
 export const sanityClient = createClient({
   projectId: process.env.EXPO_PUBLIC_SANITY_PROJECT_ID ?? 'xfkwtbtp',
@@ -138,6 +138,69 @@ export async function getPropertyById({ id }: { id: string }): Promise<SanityPro
     );
   } catch (err) {
     console.error('getPropertyById error:', err);
+    return null;
+  }
+}
+
+// ─── Property units ──────────────────────────────────────────────────────────
+// Units reference their parent property (echelon_studio propertyUnit schema),
+// so a property's units come from a reverse-reference filter.
+
+const UNIT_FIELDS = `
+  _id,
+  title,
+  slug,
+  unitCode,
+  unitType,
+  availabilityStatus,
+  completionDate,
+  bedrooms,
+  bathrooms,
+  toilets,
+  ensuiteBedrooms,
+  sizeSqm,
+  sizeSqft,
+  floorLevel,
+  view,
+  price,
+  currency,
+  "floorPlan": floorPlan { asset, hotspot, crop, alt },
+  "gallery": gallery[] { "image": image { asset, hotspot, crop }, alt, caption },
+  "features": features[]->{ _id, name },
+  aiUnitSummary`;
+
+export async function getUnitsByPropertyId({
+  propertyId,
+}: {
+  propertyId: string;
+}): Promise<SanityPropertyUnit[]> {
+  try {
+    return await sanityClient.fetch(
+      `*[_type == "propertyUnit" && property._ref == $propertyId] | order(_createdAt asc) {${UNIT_FIELDS}
+      }`,
+      { propertyId }
+    );
+  } catch (err) {
+    console.error('getUnitsByPropertyId error:', err);
+    return [];
+  }
+}
+
+export async function getUnitById({ id }: { id: string }): Promise<SanityPropertyUnit | null> {
+  try {
+    return await sanityClient.fetch(
+      `*[_type == "propertyUnit" && _id == $id][0] {${UNIT_FIELDS},
+        "property": property->{
+          _id,
+          title,
+          leadCapture,
+          "agent": agent->{ phone, "whatsapp": socials.whatsapp }
+        }
+      }`,
+      { id }
+    );
+  } catch (err) {
+    console.error('getUnitById error:', err);
     return null;
   }
 }

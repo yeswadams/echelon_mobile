@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "echelon",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.echelon.mobile"
@@ -18,13 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.echelon.mobile",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
-    },
-    "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
     },
     "web": {
       "output": "static",

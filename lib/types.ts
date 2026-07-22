@@ -152,3 +152,42 @@ export interface SanityPropertyDetail extends SanityPropertyListing {
   seo?: { metaTitle?: string; metaDescription?: string; noIndex?: boolean };
   leadCapture?: { whatsappNumber?: string };
 }
+
+// ─── Sanity property unit (echelon_studio: schemaTypes/propertyUnit.ts) ──────
+// A unit is its own document referencing its parent property — fetched via
+// reverse-reference lookup (property._ref == parent _id).
+
+export interface SanityPropertyUnit {
+  _id: string;
+  title: string;
+  slug?: { current: string };
+  unitCode?: string;
+  unitType?: string;
+  availabilityStatus?: 'available' | 'reserved' | 'sold' | 'occupied';
+  completionDate?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  toilets?: number;
+  ensuiteBedrooms?: number;
+  sizeSqm?: number;
+  sizeSqft?: number;
+  floorLevel?: string;
+  view?: string;
+  price?: number;
+  currency?: string;
+  floorPlan?: SanityImage;
+  gallery?: GalleryImage[];
+  features?: { _id: string; name: string }[];
+  aiUnitSummary?: {
+    summary?: string;
+    bestFor?: string[];
+    pros?: string[];
+    cons?: string[];
+  };
+  property?: {
+    _id: string;
+    title: string;
+    leadCapture?: { whatsappNumber?: string };
+    agent?: { phone?: string; whatsapp?: string };
+  };
+}

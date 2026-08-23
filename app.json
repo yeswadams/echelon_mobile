@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Echelon Realty",
-    "slug": "echelo_mobile_app",
+    "slug": "echelon-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -52,6 +52,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c02e7cf0-3320-4956-92fd-011cdb5e699b"
+      }
+    },
+    "owner": "yesw3"
   }
 }

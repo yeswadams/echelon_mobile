@@ -63,8 +63,11 @@ const SecureStoreAdapter = {
 
 // ─── Supabase client ─────────────────────────────────────────────────────────
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl =
+  process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://khjgoehsrsmgkcairkeu.supabase.co';
+const supabaseAnonKey =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
+  'sb_publishable_XZc6IKLEMSgswHAe-9N87g_2fRfV-aO';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

@@ -13,7 +13,7 @@
     },
     "production": {
       "autoIncrement": true,
-      "appEnv": "production",
+      "environment": "production",
       "distribution": "store"
     }
   },
